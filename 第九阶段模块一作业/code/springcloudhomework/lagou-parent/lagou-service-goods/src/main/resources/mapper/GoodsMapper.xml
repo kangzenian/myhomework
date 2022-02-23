@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lagou.goods.mapper.GoodsMapper">
+
+    <resultMap id="goodsMap" type="com.lagou.comment.pojo.Goods">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="category" column="category" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="num" column="num" jdbcType="INTEGER"/>
+            <result property="price" column="price" jdbcType="VARCHAR"/>
+            <result property="ison" column="ison" jdbcType="INTEGER"/>
+            <result property="isdel" column="isdel" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="DATE"/>
+            <result property="updateTime" column="update_time" jdbcType="DATE"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,category,
+        description,num,price,
+        ison,create_time,update_time
+    </sql>
+
+    <!-- 根据id查询商品 -->
+    <select id="selectByIdGoods" resultMap="goodsMap">
+        select * from goods where id = #{id}
+    </select>
+
+    <!-- 通过id删除商品，逻辑删除 -->
+    <update id="deleteById">
+        update goods set isdel = 1, update_time = sysdate() where id = #{id,jdbcType=NUMERIC}
+    </update>
+
+    <!-- 通过id编辑商品 -->
+    <update id="updateSelective">
+        update goods
+        <set>
+            <if test="name != null">name=#{name,jdbcType=VARCHAR},</if>
+            <if test="category != null">category=#{category,jdbcType=VARCHAR},</if>
+            <if test="description != null">description=#{description,jdbcType=VARCHAR},</if>
+            <if test="num != null">num=#{num,jdbcType=NUMERIC},</if>
+            <if test="price != null">price=#{price,jdbcType=VARCHAR},</if>
+            <if test="ison != null">ison=#{ison,jdbcType=NUMERIC},</if>
+            <if test="isdel != null">isdel=#{isdel,jdbcType=NUMERIC},</if>
+        </set>
+        ,update_time = sysdate()
+        where id = #{id,jdbcType=NUMERIC}
+    </update>
+
+    <!-- 多条件分页查询商品 -->
+    <select id="findAllByPage" resultMap="goodsMap">
+        select * from goods
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                and category = #{category}
+            </if>
+            <if test="ison != null and ison != ''">
+                and ison = #{ison}
+            </if>
+            <if test="priceBegin != null and priceEnd != null">
+                and price between #{priceBegin} and #{priceEnd}
+            </if>
+            <if test="numBegin != null and numEnd != null">
+                and num between #{numBegin} and #{numEnd}
+            </if>
+            <if test="true">
+                and isdel != 1
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据订单id查询商品列表 -->
+    <select id="selectByOrderId" resultMap="goodsMap">
+        select
+            g.*
+        from goods g left join orders o on g.id = o.gid
+        where o.id = #{orderId}
+    </select>
+</mapper>

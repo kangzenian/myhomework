@@ -1,0 +1,16 @@
+server:
+  port: 9300    #LagouCloudEurekaServerA
+spring:
+  application:
+    name: lagou-cloud-eureka  # 集群中项目名也要保持一致
+eureka:
+  client:   # eureka server本身也是一个eureka的客户端，因为在集群环境下要与其他的eureka server进行数据同步
+    service-url:  # 定义eureka server的url(http://localhost:9300/eureka)，如果是集群环境下defaultZone设置为集群下别的Eureka Server的地址，多个地址使用“,”隔开
+      defaultZone: http://LagouCloudEurekaServerB:9301/eureka
+    register-with-eureka: false  # 表示是否向eureka注册中心注册自己的信息，因为自己就是eureka server，所以不需要（false），默认true
+    fetch-registry: false       # 是否查询/拉取eureka server服务注册列表，false不拉取，默认true
+  instance:
+    #使用ip注册，否则会使用主机名注册了（此处考虑到对老版本的兼容，新版本经过实验都是ip）
+    prefer-ip-address: true
+    #自定义实例显示格式，加上版本号，便于多版本管理，注意是ip-address，早期版本是ipAddress
+    instance-id: ${spring.cloud.client.ipaddress}:${spring.application.name}:${server.port}:@project.version@

@@ -1,0 +1,28 @@
+server:
+  port: 9200
+spring:
+  application:
+    name: lagou-service-goods
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/springbootdata?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+    password: 123456
+eureka:
+  client:
+    service-url:  # eureka server的路径
+      defaultZone: http://LagouCloudEurekaServerA:9300/eureka,http://LagouCloudEurekaServerB:9301/eureka
+  instance:
+    #使用ip注册，否则会使用主机名注册了（此处考虑到对老版本的兼容，新版本经过实验都是ip）
+    prefer-ip-address: true
+    #自定义实例显示格式，加上版本号，便于多版本管理，注意是ip-address，早期版本是ipAddress
+    instance-id: ${spring.cloud.client.ipaddress}:${spring.application.name}:${server.port}:@project.version@
+pagehelper:
+  #分页插件会自动检测当前的数据库链接，自动选择合适的分页方式。
+  helper-dialect: mysql
+  #分页合理化参数，默认值为false。当该参数设置为 true 时，pageNum<=0 时会查询第一页， pageNum>pages（超过总数时），会查询最后一页。默认false 时，直接根据参数进行查询。
+  reasonable: true
+  #支持通过 Mapper 接口参数来传递分页参数，默认值false，分页插件会从查询方法的参数值中，自动根据上面 params 配置的字段中取值，查找到合适的值时就会自动分页。
+  support-methods-arguments: true
+  #为了支持startPage(Object params)方法，增加了该参数来配置参数映射，用于从对象中根据属性名取值， 可以配置 pageNum,pageSize,count,pageSizeZero,reasonable，不配置映射的用默认值， 默认值为pageNum=pageNum。
+  params: count=countSql
